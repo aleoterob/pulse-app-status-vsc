@@ -12,11 +12,13 @@ const HTTP_PROBE_TIMEOUT_MS = 900;
 const HTTP_PROBE_CONCURRENCY = 12;
 const HTTP_PROBE_TARGETS = ['localhost', '127.0.0.1', '[::1]'] as const;
 const NODE_APP_INFO_CACHE_TTL_MS = 10000;
+const VISIBLE_PORT_GRACE_PERIOD_MS = 12000;
 
 const nodeAppInfoCache = new Map<string, {
   value: { appName?: string; runtimeProcessName?: string };
   expiresAt: number;
 }>();
+const recentlyVisiblePorts = new Map<number, number>();
 
 type WindowsTcpConnection = {
   LocalAddress: string;
@@ -273,6 +275,7 @@ async function filterVisiblePorts(
   entries: ListeningPortEntry[],
   dockerPorts: Set<number>,
 ): Promise<ListeningPortEntry[]> {
+  const now = Date.now();
   const uniquePorts = [...new Set(entries.map((entry) => entry.port))];
   const visiblePorts = new Set<number>(dockerPorts);
   const portsNeedingHttpCheck = uniquePorts.filter((port) => !dockerPorts.has(port));
@@ -290,6 +293,28 @@ async function filterVisiblePorts(
       if (check.isResponsive) {
         visiblePorts.add(check.port);
       }
+    }
+  }
+
+  // Avoid UI flicker when probes intermittently fail for an app that is still up.
+  for (const port of portsNeedingHttpCheck) {
+    if (visiblePorts.has(port)) {
+      continue;
+    }
+
+    const lastSeenAt = recentlyVisiblePorts.get(port);
+    if (typeof lastSeenAt === 'number' && now - lastSeenAt <= VISIBLE_PORT_GRACE_PERIOD_MS) {
+      visiblePorts.add(port);
+    }
+  }
+
+  for (const port of visiblePorts) {
+    recentlyVisiblePorts.set(port, now);
+  }
+
+  for (const [port, lastSeenAt] of recentlyVisiblePorts.entries()) {
+    if (now - lastSeenAt > VISIBLE_PORT_GRACE_PERIOD_MS) {
+      recentlyVisiblePorts.delete(port);
     }
   }
 

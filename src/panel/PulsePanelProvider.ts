@@ -143,7 +143,7 @@ export class PortKillaPanelProvider implements vscode.WebviewViewProvider {
   <td>${appName}</td>
   <td><span class="status-running">Running</span></td>
   <td><code>${entry.port}</code></td>
-  <td><a class="vsc-button" href="http://localhost:${entry.port}">Open</a></td>
+  <td class="open-cell"><a class="vsc-button" href="http://localhost:${entry.port}">Open</a></td>
   <td><button class="vsc-button vsc-button-danger kill-button" type="button" data-port="${entry.port}" data-process-name="${processAttr}" data-app-name="${appNameAttr}">Stop</button></td>
 </tr>`;
           },

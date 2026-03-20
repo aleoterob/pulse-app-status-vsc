@@ -36,6 +36,10 @@ thead th {
   font-weight: 600;
 }
 
+.open-cell {
+  text-align: center;
+}
+
 a {
   color: var(--vscode-textLink-foreground);
 }
