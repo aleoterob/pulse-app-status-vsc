@@ -14,7 +14,7 @@ Pulse App Status is a VS Code panel extension to inspect localhost ports and sto
 - Detects Docker published ports and allows stopping Docker containers.
 - Lets you open each port in the browser.
 
-![Pulse App Status screenshot](media/screenshot.png)
+![Pulse App Status screenshot](https://raw.githubusercontent.com/aleoterob/pulse-app-status-vsc/master/media/screenshot.png)
 
 ## How To Use
 
