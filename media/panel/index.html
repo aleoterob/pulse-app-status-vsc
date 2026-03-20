@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src __CSP_SOURCE__; font-src __CSP_SOURCE__; img-src __CSP_SOURCE__ https:; connect-src __CSP_SOURCE__ https:; frame-src https:; script-src 'nonce-__NONCE__';"
+    />
+    <title>PORT KILLA</title>
+    <link rel="stylesheet" href="__CSS_URI__" />
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>Process Name</th>
+          <th>App Name</th>
+          <th>Port</th>
+          <th>Action</th>
+          <th>Stop</th>
+        </tr>
+      </thead>
+      <tbody>__ROWS__</tbody>
+    </table>
+    <script nonce="__NONCE__">
+      const vscode = acquireVsCodeApi();
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        if (!target.classList.contains('kill-button')) {
+          return;
+        }
+
+        const port = Number(target.dataset.port);
+        if (!Number.isInteger(port) || port <= 0) {
+          return;
+        }
+
+        const processName = target.dataset.processName;
+        const appName = target.dataset.appName;
+        vscode.postMessage({ type: 'kill-process', port, processName, appName });
+      });
+    </script>
+  </body>
+</html>

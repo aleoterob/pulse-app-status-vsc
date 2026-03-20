@@ -1,0 +1,69 @@
+body {
+  font-family: var(--vscode-font-family);
+  color: var(--vscode-foreground);
+  padding: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+thead th {
+  font-weight: 600;
+}
+
+.process-with-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.process-logo {
+  width: 14px;
+  height: 14px;
+}
+
+a {
+  color: var(--vscode-textLink-foreground);
+}
+
+a:hover {
+  color: var(--vscode-textLink-activeForeground);
+}
+
+.vsc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px 10px;
+  text-decoration: none;
+  background: var(--vscode-button-background, #7c3aed);
+  color: var(--vscode-button-foreground, #ffffff);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.vsc-button:hover {
+  background: var(--vscode-button-hoverBackground, #8b5cf6);
+  color: rgb(255 255 255 / 85%);
+}
+
+.vsc-button-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.vsc-button-danger:hover {
+  background: #b91c1c;
+  color: rgb(255 255 255 / 85%);
+}
