@@ -37,6 +37,11 @@ thead th {
 }
 
 .open-cell {
+  text-align: center !important;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
   text-align: center;
 }
 
