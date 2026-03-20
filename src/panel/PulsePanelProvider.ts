@@ -115,7 +115,7 @@ export class PortKillaPanelProvider implements vscode.WebviewViewProvider {
     const dockerLogoUri = await this.getDockerLogoUri(webview);
     const pythonLogoUri = await this.getPythonLogoUri(webview);
     const rowsHtml = sortedPorts.length === 0
-      ? '<tr><td colspan="5">No localhost HTTP ports responded.</td></tr>'
+      ? '<tr><td colspan="6">No localhost HTTP ports responded.</td></tr>'
       : sortedPorts
         .map(
           (entry) => {
@@ -141,6 +141,7 @@ export class PortKillaPanelProvider implements vscode.WebviewViewProvider {
             return `<tr>
   <td>${processCell}</td>
   <td>${appName}</td>
+  <td><span class="status-running">Running</span></td>
   <td><code>${entry.port}</code></td>
   <td><a class="vsc-button" href="http://localhost:${entry.port}">Open</a></td>
   <td><button class="vsc-button vsc-button-danger kill-button" type="button" data-port="${entry.port}" data-process-name="${processAttr}" data-app-name="${appNameAttr}">Stop</button></td>

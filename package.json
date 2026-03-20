@@ -3,7 +3,7 @@
   "publisher": "AleOtero",
   "displayName": "Pulse App Status",
   "description": "Inspect localhost ports and stop processes quickly. Supports Node.js, Bun and Python apps, and Docker containers.",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.110.0"
   },
