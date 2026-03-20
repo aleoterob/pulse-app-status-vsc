@@ -8,9 +8,15 @@ import { inferPythonAppName } from './getPythonApp';
 import { isPythonProcess } from './getPythonProcesses';
 
 const execAsync = promisify(exec);
-const HTTP_PROBE_TIMEOUT_MS = 2000;
+const HTTP_PROBE_TIMEOUT_MS = 900;
 const HTTP_PROBE_CONCURRENCY = 12;
 const HTTP_PROBE_TARGETS = ['localhost', '127.0.0.1', '[::1]'] as const;
+const NODE_APP_INFO_CACHE_TTL_MS = 10000;
+
+const nodeAppInfoCache = new Map<string, {
+  value: { appName?: string; runtimeProcessName?: string };
+  expiresAt: number;
+}>();
 
 type WindowsTcpConnection = {
   LocalAddress: string;
@@ -60,6 +66,12 @@ async function inferNodeAppInfo(
     return {};
   }
 
+  const cached = nodeAppInfoCache.get(normalized);
+  const now = Date.now();
+  if (cached && cached.expiresAt > now) {
+    return cached.value;
+  }
+
   const packageInfo = await getAppPackageInfoFromCommandLine(normalized);
   const runtimeProcessName =
     typeof packageInfo?.packageManager === 'string' &&
@@ -68,22 +80,37 @@ async function inferNodeAppInfo(
       : undefined;
 
   if (packageInfo?.name) {
-    return { appName: packageInfo.name, runtimeProcessName };
+    const value = { appName: packageInfo.name, runtimeProcessName };
+    nodeAppInfoCache.set(normalized, {
+      value,
+      expiresAt: now + NODE_APP_INFO_CACHE_TTL_MS,
+    });
+    return value;
   }
 
   const scriptMatch = /(?:^|\s)(["']?[^"'\s]+?\.(?:js|mjs|cjs|ts|mts|cts)["']?)(?:\s|$)/i.exec(normalized);
   if (!scriptMatch?.[1]) {
-    return {};
+    const value = {};
+    nodeAppInfoCache.set(normalized, {
+      value,
+      expiresAt: now + NODE_APP_INFO_CACHE_TTL_MS,
+    });
+    return value;
   }
 
   const quotedScript = scriptMatch[1];
   const scriptPath = quotedScript.replace(/^['"]|['"]$/g, '');
   const pathParts = scriptPath.split(/[\\/]/).filter((part) => part.length > 0);
   const fileName = pathParts[pathParts.length - 1];
-  return {
+  const value = {
     appName: fileName && fileName.length > 0 ? fileName : undefined,
     runtimeProcessName,
   };
+  nodeAppInfoCache.set(normalized, {
+    value,
+    expiresAt: now + NODE_APP_INFO_CACHE_TTL_MS,
+  });
+  return value;
 }
 
 function isLocalhostReachableBinding(address: string): boolean {
@@ -235,14 +262,11 @@ async function isHttpResponsive(url: string): Promise<boolean> {
 }
 
 async function isHttpResponsiveOnLocalhost(port: number): Promise<boolean> {
-  for (const host of HTTP_PROBE_TARGETS) {
-    const isResponsive = await isHttpResponsive(`http://${host}:${port}/`);
-    if (isResponsive) {
-      return true;
-    }
-  }
+  const checks = await Promise.all(
+    HTTP_PROBE_TARGETS.map((host) => isHttpResponsive(`http://${host}:${port}/`)),
+  );
 
-  return false;
+  return checks.some((isResponsive) => isResponsive);
 }
 
 async function filterVisiblePorts(

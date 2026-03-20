@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PortKillaPanelProvider } from './panel/PortKillaPanelProvider';
+import { PortKillaPanelProvider } from './panel/PulsePanelProvider';
 
 export function activate(context: vscode.ExtensionContext) {
   const panelProvider = new PortKillaPanelProvider(context.extensionUri);

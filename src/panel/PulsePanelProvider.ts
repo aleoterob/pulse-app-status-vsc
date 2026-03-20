@@ -206,46 +206,6 @@ export class PortKillaPanelProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const currentPorts = await getLocalhostActivePorts();
-    const dockerEntriesForPort = currentPorts.filter(
-      (entry) => entry.port === message.port && entry.processName === 'Docker' && entry.appName,
-    );
-
-    if (dockerEntriesForPort.length > 0) {
-      const dockerContainerNames = [...new Set(
-        dockerEntriesForPort
-          .map((entry) => entry.appName?.trim())
-          .filter((name): name is string => typeof name === 'string' && name.length > 0),
-      )];
-
-      const stoppedContainers: string[] = [];
-      const failedContainers: string[] = [];
-
-      for (const containerName of dockerContainerNames) {
-        const dockerResult = await stopDockerContainerByName(containerName);
-        if (dockerResult.stopped) {
-          stoppedContainers.push(dockerResult.containerName);
-        } else {
-          failedContainers.push(dockerResult.containerName);
-        }
-      }
-
-      if (stoppedContainers.length > 0) {
-        void vscode.window.showInformationMessage(
-          `Stopped Docker container(s): ${stoppedContainers.join(', ')}.`,
-        );
-      }
-
-      if (failedContainers.length > 0) {
-        void vscode.window.showWarningMessage(
-          `Could not stop Docker container(s): ${failedContainers.join(', ')}. Check Docker Desktop/engine status.`,
-        );
-      }
-
-      await this.refresh();
-      return;
-    }
-
     if (message.processName === 'Docker' && message.appName && message.appName.trim().length > 0) {
       const dockerResult = await stopDockerContainerByName(message.appName);
       if (!dockerResult.stopped) {
