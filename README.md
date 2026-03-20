@@ -4,6 +4,8 @@
 
 Pulse App Status is a VS Code panel extension to inspect localhost ports and stop processes quickly.
 
+[Repository](https://github.com/aleoterob/pulse-app-status-vsc)
+
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://paypal.me/aleoterob)
 
 ## What It Does
